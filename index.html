@@ -477,9 +477,69 @@ footer strong{color:var(--ink)}
 </footer>
 <script>
 (function(){
+  var SHEET="https://docs.google.com/spreadsheets/d/1AutRw833AVrrOcLzZJjAVkIIb6Os8mQ2Qa8loDdkhz8/gviz/tq?tqx=out:csv";
+  var CATS={"tecnologia":"tec","casa e ferramentas":"casa","sono e conforto":"sono"};
+  var CATN={tec:"Tecnologia",casa:"Casa e ferramentas",sono:"Sono e conforto"};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function parseCSV(txt){
+    var rows=[],row=[],f="",q=false,i,c;
+    for(i=0;i<txt.length;i++){c=txt[i];
+      if(q){ if(c=='"'){ if(txt[i+1]=='"'){f+='"';i++;} else q=false; } else f+=c; }
+      else if(c=='"') q=true; else if(c==','){row.push(f);f="";}
+      else if(c=='\n'){row.push(f);rows.push(row);row=[];f="";} else if(c!='\r') f+=c;
+    }
+    if(f!==""||row.length){row.push(f);rows.push(row);}
+    return rows;
+  }
+  function soldN(v){var m=String(v).toLowerCase().replace(/\./g,"").match(/([\d,]+)\s*(mil)?/); if(!m) return 0; var n=parseFloat(m[1].replace(",",".")); return m[2]?n*1000:n;}
+  function nota(v){v=String(v||"").trim().replace(",","."); var n=parseFloat(v); if(!n) return null; if(n>5) n=n/10; return n;}
+  function aval(v){var n=parseInt(String(v||"").replace(/\D/g,""),10); if(!n) return ""; return n>=1000?"("+Math.floor(n/1000)+" mil)":"("+n+")";}
+  function slugify(s){return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
+  function card(p,top){
+    var bd=[]; if(p.vid) bd.push('<span class="bdg vid">▶ Do vídeo</span>'); if(top) bd.push('<span class="bdg top">🔥 Mais vendido</span>'); if(!p.nota) bd.push('<span class="bdg new">Novidade</span>');
+    var obs=p.obs?('<p class="why">'+(p.vid?"No vídeo: ":"")+esc(p.obs)+'</p>'):"";
+    var rate=p.nota?('<span class="star" aria-hidden="true">★</span> '+p.nota.toFixed(1).replace(".",",")+' <span class="muted">'+aval(p.aval)+'</span>'):'<span class="muted">Ainda com poucas avaliações</span>';
+    return '<li class="card" data-cat="'+p.cat+'" data-slug="'+esc(p.slug)+'" data-name="'+esc(p.nome+" "+CATN[p.cat]+" "+p.slug.replace(/-/g," "))+'"'+(p.vid?' data-feat="1"':'')+'>'+
+      '<a class="card-link" href="'+esc(p.link)+'" target="_blank" rel="sponsored noopener">'+
+      '<div class="ph">'+(bd.length?'<div class="badges">'+bd.join("")+'</div>':'')+'<img src="'+esc(p.img)+'" alt="'+esc(p.nome)+'" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add(\'noimg\');this.remove()"></div>'+
+      '<div class="body"><span class="cat">'+CATN[p.cat]+'</span><h3>'+esc(p.nome)+'</h3>'+obs+'<p class="rate">'+rate+'</p>'+
+      (p.vend?'<p class="sold"><b>'+esc(p.vend)+'</b> vendidos</p>':'')+
+      '<span class="btn">Ver preço <span aria-hidden="true">→</span></span></div></a></li>';
+  }
+  window.loadSheet=function(done){
+    if(!window.fetch) return done(false);
+    var ctl=window.AbortController?new AbortController():null; var to=setTimeout(function(){ctl&&ctl.abort();},6000);
+    fetch(SHEET+"&_="+Math.floor(Date.now()/60000),ctl?{signal:ctl.signal}:{}).then(function(r){if(!r.ok) throw 0; return r.text();}).then(function(txt){
+      clearTimeout(to);
+      var rows=parseCSV(txt); if(rows.length<2) throw 0;
+      var h=rows[0].map(function(x){return slugify(x).replace(/-/g,"_");}); function col(r,k){var i=h.indexOf(k);return i<0?"":(r[i]||"").trim();}
+      var ps=[];
+      rows.slice(1).forEach(function(r){
+        var at=col(r,"ativo").toLowerCase(); if(at && at!=="sim" && at!=="s" && at!=="true") return;
+        var link=col(r,"link_afiliado"), nome=col(r,"nome"); if(!link||!nome) return;
+        var cat=CATS[col(r,"categoria").toLowerCase()]; if(!cat) return;
+        ps.push({slug:col(r,"codigo")||slugify(nome),nome:nome,cat:cat,link:link,img:col(r,"imagem"),nota:nota(col(r,"nota")),aval:col(r,"avaliacoes"),vend:col(r,"vendidos"),vid:/^s/i.test(col(r,"do_video")),obs:col(r,"observacao")});
+      });
+      if(!ps.length) throw 0;
+      var order=ps.slice().sort(function(a,b){return soldN(b.vend)-soldN(a.vend);});
+      var top={}; order.slice(0,4).forEach(function(p){top[p.slug]=1;});
+      document.getElementById("grid").innerHTML=order.map(function(p){return card(p,top[p.slug]);}).join("");
+      var f=ps.filter(function(p){return p.vid;});
+      document.querySelector(".feat-grid").innerHTML=f.map(function(p){return card(p,top[p.slug]);}).join("");
+      document.getElementById("feat").style.display=f.length?"":"none";
+      var n={todos:ps.length,tec:0,casa:0,sono:0}; ps.forEach(function(p){n[p.cat]++;});
+      document.querySelectorAll(".tab").forEach(function(t){var s=t.querySelector("span"); if(s) s.textContent=n[t.dataset.cat];});
+      done(true);
+    }).catch(function(){clearTimeout(to);done(false);});
+  };
+})();
+</script>
+<script>
+(function(){
   var map={todos:"todos",tecnologia:"tec",casa:"casa",sono:"sono"};
   var names={todos:"Mais indicados",tec:"Tecnologia",casa:"Casa e ferramentas",sono:"Sono e conforto"};
   var tabs=document.querySelectorAll(".tab"), cards=document.querySelectorAll("#grid .card");
+  function refresh(){cards=document.querySelectorAll("#grid .card");}
   var q=document.getElementById("q"), feat=document.getElementById("feat"), title=document.getElementById("all-t"), empty=document.getElementById("empty");
   var canal="direto";
   try{ var u=new URLSearchParams(location.search); canal=u.get("c")||u.get("utm_source")||sessionStorage.getItem("canal")||"direto"; sessionStorage.setItem("canal",canal);}catch(e){}
@@ -518,6 +578,7 @@ footer strong{color:var(--ink)}
     var c=a.closest(".card"); track("clique_shopee",{produto:c.dataset.slug,canal:canal,secao:c.closest("#feat")?"videos":"lista"});
   });
   route(true);
+  window.loadSheet(function(ok){ if(ok){ refresh(); route(true); } });
 })();
 </script>
 </body>
