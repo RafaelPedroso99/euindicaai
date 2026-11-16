@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indica Aí</title>
+<meta name="description" content="Os produtos que eu indico nos vídeos. A compra é feita direto na Shopee.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Plano: vitrine de indicações em coluna única para celular; cabeçalho curto com a promessa de confiança, abas por categoria, grade de cards que leva direto para a Shopee. */
+:root{
+  --bg:#f7f7f8; --surface:#ffffff; --ink:#18181b; --ink-2:#62626b; --line:#e9e9ec; --soft:#f4f4f5;
+  --brand:#ee4d2d; --brand-ink:#ffffff; --tint:#fde8e3; --tint-ink:#9a2a12;
+  --cta:#ee4d2d; --cta-ink:#ffffff; --star:#f59e0b; --focus:#ee4d2d;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --text:"Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--text);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+header{background:var(--surface);color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:16px}
+.top{display:flex;align-items:center;gap:12px;padding:20px 0 6px}
+.logo{display:grid;place-items:center;width:40px;height:40px;border-radius:11px;background:var(--brand);color:var(--brand-ink);font:800 21px/1 var(--display)}
+h1{font:800 clamp(26px,5vw,34px)/1.1 var(--display);margin:0;letter-spacing:-.01em}
+.lead{margin:6px 0 12px;color:var(--ink-2);max-width:60ch;text-wrap:balance}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.trust{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0;padding:0;list-style:none}
+.trust li{flex:none;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink)}
+.trust svg{width:15px;height:15px;color:var(--brand);flex:none}
+nav{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;font:600 14px/1 var(--text);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:10px 14px;cursor:pointer;text-decoration:none}
+.tab span{color:var(--ink-2);font-weight:500;margin-left:4px}
+.tab[aria-current="page"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.tab[aria-current="page"] span{color:inherit;opacity:.8}
+.tab:focus-visible,.card-link:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+main{padding:18px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0;padding:0;list-style:none}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:900px){.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}}
+.card{display:flex}
+.card[hidden]{display:none}
+.card-link{display:flex;flex-direction:column;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;color:inherit;text-decoration:none;transition:border-color .15s,transform .15s}
+.card-link:hover{border-color:color-mix(in srgb,var(--brand) 45%,var(--line))}
+@media (prefers-reduced-motion:no-preference){.card-link:hover{transform:translateY(-2px)}}
+.ph{position:relative;aspect-ratio:1/1;background:#fff;display:grid;place-items:center;border-bottom:1px solid var(--line)}
+.badges{position:absolute;top:8px;left:8px;right:8px;display:flex;flex-wrap:wrap;gap:4px;pointer-events:none}
+.bdg{font:700 11px/1 var(--text);padding:5px 7px;border-radius:6px}
+.bdg.vid{background:var(--tint);color:var(--tint-ink)}
+.bdg.top{background:#18181b;color:#fff}
+.bdg.new{background:#f4f4f5;color:#18181b;border:1px solid #e4e4e7}
+.ph img{width:100%;height:100%;object-fit:contain;display:block}
+.ph.noimg::after{content:"Foto na Shopee";font-size:13px;color:#6b7780}
+.body{display:flex;flex-direction:column;gap:4px;padding:10px 12px 12px;flex:1}
+.cat{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.card h3{font:600 14px/1.35 var(--text);margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.why{margin:2px 0;font-size:12.5px;line-height:1.4;padding:6px 8px;border-radius:0 8px 8px 0;background:var(--tint);border-left:3px solid var(--brand);color:var(--ink)}
+.rate,.sold{margin:0;font-size:12.5px;font-variant-numeric:tabular-nums}
+.sold b{color:var(--ink);font-weight:700}
+.star{color:var(--star)}
+.muted,.sold{color:var(--ink-2)}
+.btn{margin-top:auto;display:flex;justify-content:center;gap:6px;padding:10px;border-radius:10px;background:var(--cta);color:var(--cta-ink);font-weight:700;font-size:14px}
+.card-link:hover .btn{filter:brightness(1.06)}
+.body .btn{margin-top:auto}
+.body .sold{margin-bottom:10px}
+.empty{padding:40px 0;text-align:center;color:var(--ink-2)}
+footer{padding:20px 0 36px;color:var(--ink-2);font-size:13px}
+footer p{margin:0 0 8px;max-width:70ch}
+footer strong{color:var(--ink)}
+.search{display:block;position:relative;margin:12px 0 0}
+.search input{width:100%;font:500 15px/1 var(--text);padding:13px 14px 13px 42px;border-radius:12px;border:1px solid transparent;background:var(--soft);color:var(--ink)}
+.search input::placeholder{color:var(--ink-2)}
+.search svg{position:absolute;left:13px;top:50%;width:18px;height:18px;transform:translateY(-50%);color:var(--ink-2)}
+.search input:focus-visible{outline:none;border-color:var(--brand);background:var(--surface)}
+.sec{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:4px 0 12px}
+.sec h2{font:800 20px/1.2 var(--display);margin:0}
+.sec p{margin:0;font-size:13px;color:var(--ink-2)}
+#feat{margin-bottom:26px}
+#feat[hidden]{display:none}
+.feat-grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(170px,46%);gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0;padding:2px 0 8px;list-style:none;scrollbar-width:none}
+.feat-grid::-webkit-scrollbar{display:none}
+.feat-grid .card{scroll-snap-align:start}
+.feat-grid .card-link{border:1.5px solid color-mix(in srgb,var(--brand) 55%,var(--line))}
+@media (min-width:900px){.feat-grid{grid-auto-columns:minmax(190px,1fr)}.hint{display:none}}
+.mode-todos #grid .card[data-feat]{display:none}
+.mode-search #feat{display:none}
+.card.focus .card-link{border-color:var(--brand);box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 22%,transparent)}
+@media (prefers-reduced-motion:no-preference){.card.focus .card-link{animation:pulse 1.4s ease-out 2}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--brand) 45%,transparent)}100%{box-shadow:0 0 0 14px transparent}}
+.card{scroll-margin-top:84px}
+</style>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Indica Aí: o que eu indico nos vídeos">
+<meta property="og:description" content="Tudo o que eu indico nos vídeos, num lugar só. Compre direto na Shopee.">
+<meta property="og:image" content="https://euindicaai.com.br/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://euindicaai.com.br/">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script defer src="https://cloud.umami.is/script.js" data-website-id="6b931cf4-147f-4eef-80ef-2f1fc0b6b3a8"></script>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="logo" aria-hidden="true">i</div>
+      <h1>Indica Aí</h1>
+    </div>
+    <p class="lead">Tudo o que eu indico nos vídeos, num lugar só. Escolha aqui e compre direto na Shopee.</p>
+    <ul class="trust">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>Compra pela Shopee</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 17.3l-5.4 3.2 1.4-6.1-4.7-4.1 6.2-.5L12 4l2.5 5.8 6.2.5-4.7 4.1 1.4 6.1z"/></svg>Bem avaliados</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>Links de afiliado</li>
+    </ul>
+    <label class="search"><span class="sr">Procurar produto</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Viu num vídeo? Procure aqui" autocomplete="off">
+    </label>
+  </div>
+</header>
+<nav aria-label="Categorias">
+  <div class="wrap tabs" id="tabs">
+    <a class="tab" href="#todos" data-cat="todos" aria-current="page">Todos<span>20</span></a>
+    <a class="tab" href="#tecnologia" data-cat="tec">Tecnologia<span>7</span></a>
+    <a class="tab" href="#casa" data-cat="casa">Casa e ferramentas<span>10</span></a>
+    <a class="tab" href="#sono" data-cat="sono">Sono e conforto<span>3</span></a>
+  </div>
+</nav>
+<main class="wrap">
+  <section id="feat" aria-labelledby="feat-h">
+    <div class="sec"><h2 id="feat-h">Apareceram nos vídeos</h2><p class="hint">arraste →</p></div>
+    <ul class="feat-grid">
+<li class="card" data-cat="tec" data-slug="carregador" data-name="Kit carregador Lehmox 20W (fonte USB-C + cabo Lightning) Tecnologia carregador" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/5Au5iC9xzN" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span></div><img src="https://down-br.img.susercontent.com/file/br-11134207-81ztc-mjfmlxjdwt1d0f_tn" alt="Kit carregador Lehmox 20W (fonte USB-C + cabo Lightning)" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Kit carregador Lehmox 20W (fonte USB-C + cabo Lightning)</h3>
+      <p class="why">No vídeo: por que o carregador barato pode estragar seu celular. Tem homologação da Anatel.</p>
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,8 <span class="muted">(5 mil)</span></p>
+      <p class="sold"><b>10 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="tec" data-slug="power-bank" data-name="Power bank Inova 20.000 mAh com visor Tecnologia power bank" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/2qWAw2KV0z" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span></div><img src="https://down-br.img.susercontent.com/file/br-11134207-7r98o-manzmd5jc0l56b_tn" alt="Power bank Inova 20.000 mAh com visor" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Power bank Inova 20.000 mAh com visor</h3>
+      <p class="why">No vídeo: por que não carregar o celular em USB público.</p>
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,9 <span class="muted">(10 mil)</span></p>
+      <p class="sold"><b>20 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="tec" data-slug="fone-cancelamento" data-name="Fone sem fio com cancelamento de ruído Tecnologia fone cancelamento" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/4VeOv6E9dD" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span><span class="bdg top">🔥 Mais vendido</span></div><img src="https://down-br.img.susercontent.com/file/sg-11134201-7rffm-m4f5wo6pi7mjaa_tn" alt="Fone sem fio com cancelamento de ruído" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Fone sem fio com cancelamento de ruído</h3>
+      <p class="why">No vídeo: como o fone apaga o barulho do mundo.</p>
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,8 <span class="muted">(43 mil)</span></p>
+      <p class="sold"><b>100 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="parafusadeira" data-name="Parafusadeira e furadeira com 2 baterias e maleta Casa e ferramentas parafusadeira" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/6q2JhO5Gtu" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span><span class="bdg top">🔥 Mais vendido</span></div><img src="https://down-br.img.susercontent.com/file/br-11134207-7r98o-m106y9pfreou43_tn" alt="Parafusadeira e furadeira com 2 baterias e maleta" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Parafusadeira e furadeira com 2 baterias e maleta</h3>
+      <p class="why">No vídeo: tentei pendurar uma prateleira (e ela caiu).</p>
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,8 <span class="muted">(26 mil)</span></p>
+      <p class="sold"><b>40 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="sono" data-slug="mascara-dormir" data-name="Máscara de dormir 3D contornada Sono e conforto mascara dormir" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/1BNwyPlx25" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span><span class="bdg new">Novidade</span></div><img src="https://down-br.img.susercontent.com/file/sg-11134301-8258k-mqone9opcglr16_tn" alt="Máscara de dormir 3D contornada" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Sono e conforto</span>
+      <h3>Máscara de dormir 3D contornada</h3>
+      <p class="why">No vídeo: por que você acorda cansado mesmo dormindo 8 horas.</p>
+      <p class="rate"><span class="muted">Ainda com poucas avaliações</span></p>
+      <p class="sold"><b>130</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+    </ul>
+  </section>
+  <div class="sec" id="all-h"><h2 id="all-t">Mais indicados</h2></div>
+  <ul class="grid" id="grid">
+<li class="card" data-cat="casa" data-slug="jogo-de-chaves" data-name="Jogo de chaves com catraca, 40/46 peças, com maleta Casa e ferramentas jogo de chaves">
+  <a class="card-link" href="https://s.shopee.com.br/4fxp7PDWIG" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg top">🔥 Mais vendido</span></div><img src="https://down-br.img.susercontent.com/file/br-11134207-820l9-mqt86n8incape7_tn" alt="Jogo de chaves com catraca, 40/46 peças, com maleta" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Jogo de chaves com catraca, 40/46 peças, com maleta</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,8 <span class="muted">(218 mil)</span></p>
+      <p class="sold"><b>400 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="tec" data-slug="fone-cancelamento" data-name="Fone sem fio com cancelamento de ruído Tecnologia fone cancelamento" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/4VeOv6E9dD" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span><span class="bdg top">🔥 Mais vendido</span></div><img src="https://down-br.img.susercontent.com/file/sg-11134201-7rffm-m4f5wo6pi7mjaa_tn" alt="Fone sem fio com cancelamento de ruído" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Fone sem fio com cancelamento de ruído</h3>
+      <p class="why">No vídeo: como o fone apaga o barulho do mundo.</p>
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,8 <span class="muted">(43 mil)</span></p>
+      <p class="sold"><b>100 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="parafusadeira" data-name="Parafusadeira e furadeira com 2 baterias e maleta Casa e ferramentas parafusadeira" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/6q2JhO5Gtu" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span><span class="bdg top">🔥 Mais vendido</span></div><img src="https://down-br.img.susercontent.com/file/br-11134207-7r98o-m106y9pfreou43_tn" alt="Parafusadeira e furadeira com 2 baterias e maleta" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Parafusadeira e furadeira com 2 baterias e maleta</h3>
+      <p class="why">No vídeo: tentei pendurar uma prateleira (e ela caiu).</p>
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,8 <span class="muted">(26 mil)</span></p>
+      <p class="sold"><b>40 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="chave-precisao" data-name="Kit chave de precisão magnética, 24 peças Casa e ferramentas chave precisao">
+  <a class="card-link" href="https://s.shopee.com.br/4qHFO9G7hh" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg top">🔥 Mais vendido</span></div><img src="https://down-br.img.susercontent.com/file/br-11134207-7r98o-lnt2v53wp64n47_tn" alt="Kit chave de precisão magnética, 24 peças" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Kit chave de precisão magnética, 24 peças</h3>
+      <p class="why">Para pequenos reparos em celular, notebook e óculos.</p>
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,6 <span class="muted">(28 mil)</span></p>
+      <p class="sold"><b>40 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="parafusadeira-12v" data-name="Parafusadeira e furadeira 12V sem fio com maleta Casa e ferramentas parafusadeira 12v">
+  <a class="card-link" href="https://s.shopee.com.br/6fitV55uEt" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/br-11134207-7r98o-lrngpsukh5wk5c_tn" alt="Parafusadeira e furadeira 12V sem fio com maleta" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Parafusadeira e furadeira 12V sem fio com maleta</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,9 <span class="muted">(25 mil)</span></p>
+      <p class="sold"><b>30 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="tec" data-slug="power-bank" data-name="Power bank Inova 20.000 mAh com visor Tecnologia power bank" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/2qWAw2KV0z" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span></div><img src="https://down-br.img.susercontent.com/file/br-11134207-7r98o-manzmd5jc0l56b_tn" alt="Power bank Inova 20.000 mAh com visor" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Power bank Inova 20.000 mAh com visor</h3>
+      <p class="why">No vídeo: por que não carregar o celular em USB público.</p>
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,9 <span class="muted">(10 mil)</span></p>
+      <p class="sold"><b>20 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="tec" data-slug="fone-capacete" data-name="Fone Bluetooth Y10 para capacete de moto Tecnologia fone capacete">
+  <a class="card-link" href="https://s.shopee.com.br/3LSRWxIb08" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/br-11134207-81z1k-micuj22uwao146_tn" alt="Fone Bluetooth Y10 para capacete de moto" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Fone Bluetooth Y10 para capacete de moto</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,8 <span class="muted">(10 mil)</span></p>
+      <p class="sold"><b>20 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="lavadora" data-name="Lavadora de alta pressão Vonder LAV1600 Casa e ferramentas lavadora">
+  <a class="card-link" href="https://s.shopee.com.br/114Wkpf2PQ" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/br-11134207-81z1k-mf48dkn40dfp22_tn" alt="Lavadora de alta pressão Vonder LAV1600" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Lavadora de alta pressão Vonder LAV1600</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,9 <span class="muted">(14 mil)</span></p>
+      <p class="sold"><b>20 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="potes-bambu" data-name="Kit 4 potes herméticos com tampa de bambu Casa e ferramentas potes bambu">
+  <a class="card-link" href="https://s.shopee.com.br/9fMV99GtUm" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/sg-11134201-822x5-mo74eg768t8m85_tn" alt="Kit 4 potes herméticos com tampa de bambu" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Kit 4 potes herméticos com tampa de bambu</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,5 <span class="muted">(9 mil)</span></p>
+      <p class="sold"><b>20 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="tec" data-slug="carregador" data-name="Kit carregador Lehmox 20W (fonte USB-C + cabo Lightning) Tecnologia carregador" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/5Au5iC9xzN" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span></div><img src="https://down-br.img.susercontent.com/file/br-11134207-81ztc-mjfmlxjdwt1d0f_tn" alt="Kit carregador Lehmox 20W (fonte USB-C + cabo Lightning)" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Kit carregador Lehmox 20W (fonte USB-C + cabo Lightning)</h3>
+      <p class="why">No vídeo: por que o carregador barato pode estragar seu celular. Tem homologação da Anatel.</p>
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,8 <span class="muted">(5 mil)</span></p>
+      <p class="sold"><b>10 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="potes-vidro" data-name="Kit potes herméticos de vidro com tampa de bambu Casa e ferramentas potes vidro">
+  <a class="card-link" href="https://s.shopee.com.br/6VPTNIY5X1" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/br-11134207-820ld-mso4uf7pu0p11c_tn" alt="Kit potes herméticos de vidro com tampa de bambu" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Kit potes herméticos de vidro com tampa de bambu</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,8 <span class="muted">(8 mil)</span></p>
+      <p class="sold"><b>10 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="parafusadeira-25v" data-name="Parafusadeira e furadeira Nakasaki 25V, kit completo Casa e ferramentas parafusadeira 25v">
+  <a class="card-link" href="https://s.shopee.com.br/4LKyinEmyA" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/br-11134207-820m5-mv3iib53t4owb4_tn" alt="Parafusadeira e furadeira Nakasaki 25V, kit completo" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Parafusadeira e furadeira Nakasaki 25V, kit completo</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,9 <span class="muted">(3 mil)</span></p>
+      <p class="sold"><b>6 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="calibrador" data-name="Bomba de ar e calibrador digital portátil Casa e ferramentas calibrador">
+  <a class="card-link" href="https://s.shopee.com.br/20x3wfbENW" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/br-11134207-81z1k-mgz1ko75qj2d95_tn" alt="Bomba de ar e calibrador digital portátil" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Bomba de ar e calibrador digital portátil</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,9 <span class="muted">(3 mil)</span></p>
+      <p class="sold"><b>6 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="sono" data-slug="lencol-casal" data-name="Kit 4 lençóis casal com elástico Sono e conforto lencol casal">
+  <a class="card-link" href="https://s.shopee.com.br/9zzLUuGeyz" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/br-11134207-820mf-mlxjr4nzbm680d_tn" alt="Kit 4 lençóis casal com elástico" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Sono e conforto</span>
+      <h3>Kit 4 lençóis casal com elástico</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,6 <span class="muted">(3 mil)</span></p>
+      <p class="sold"><b>5 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="tec" data-slug="fone-760bt" data-name="Fone Bluetooth 760BT com cancelamento ativo de ruído Tecnologia fone 760bt">
+  <a class="card-link" href="https://s.shopee.com.br/50afW1CFcM" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/br-11134207-820m1-mtdw9dzq5vcw6e_tn" alt="Fone Bluetooth 760BT com cancelamento ativo de ruído" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Fone Bluetooth 760BT com cancelamento ativo de ruído</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,9 <span class="muted">(916)</span></p>
+      <p class="sold"><b>1 mil+</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="casa" data-slug="escorredor" data-name="Escorredor de pratos de aço inox para pia Casa e ferramentas escorredor">
+  <a class="card-link" href="https://s.shopee.com.br/1Bzd77IBj" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/sg-11134201-7rdyg-mcq37sxe7ukz52_tn" alt="Escorredor de pratos de aço inox para pia" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Casa e ferramentas</span>
+      <h3>Escorredor de pratos de aço inox para pia</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,9 <span class="muted">(138)</span></p>
+      <p class="sold"><b>286</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="tec" data-slug="smartwatch" data-name="Smartwatch TechLife Tecnologia smartwatch">
+  <a class="card-link" href="https://s.shopee.com.br/6VPTKHHETS" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/sg-11134201-825b4-mvh64de40zka25_tn" alt="Smartwatch TechLife" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Smartwatch TechLife</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,7 <span class="muted">(25)</span></p>
+      <p class="sold"><b>261</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="sono" data-slug="lencol-solteiro" data-name="Kit 3 lençóis solteiro 100% algodão Sono e conforto lencol solteiro">
+  <a class="card-link" href="https://s.shopee.com.br/AUvc5pEky6" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/br-11134207-7r98o-mdam0iti0075d3_tn" alt="Kit 3 lençóis solteiro 100% algodão" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Sono e conforto</span>
+      <h3>Kit 3 lençóis solteiro 100% algodão</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 4,7 <span class="muted">(101)</span></p>
+      <p class="sold"><b>190</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="sono" data-slug="mascara-dormir" data-name="Máscara de dormir 3D contornada Sono e conforto mascara dormir" data-feat="1">
+  <a class="card-link" href="https://s.shopee.com.br/1BNwyPlx25" target="_blank" rel="sponsored noopener">
+    <div class="ph"><div class="badges"><span class="bdg vid">▶ Do vídeo</span><span class="bdg new">Novidade</span></div><img src="https://down-br.img.susercontent.com/file/sg-11134301-8258k-mqone9opcglr16_tn" alt="Máscara de dormir 3D contornada" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Sono e conforto</span>
+      <h3>Máscara de dormir 3D contornada</h3>
+      <p class="why">No vídeo: por que você acorda cansado mesmo dormindo 8 horas.</p>
+      <p class="rate"><span class="muted">Ainda com poucas avaliações</span></p>
+      <p class="sold"><b>130</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+<li class="card" data-cat="tec" data-slug="pulseira-inteligente" data-name="Pulseira inteligente com monitor de sono e batimentos Tecnologia pulseira inteligente">
+  <a class="card-link" href="https://s.shopee.com.br/60TCjMJ8UL" target="_blank" rel="sponsored noopener">
+    <div class="ph"><img src="https://down-br.img.susercontent.com/file/sg-11134253-82596-mucl87mbetje16_tn" alt="Pulseira inteligente com monitor de sono e batimentos" loading="lazy" width="300" height="300" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="body">
+      <span class="cat">Tecnologia</span>
+      <h3>Pulseira inteligente com monitor de sono e batimentos</h3>
+      
+      <p class="rate"><span class="star" aria-hidden="true">★</span> 5,0 <span class="muted">(12)</span></p>
+      <p class="sold"><b>19</b> vendidos</p>
+      <span class="btn">Ver preço <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</li>
+  </ul>
+  <p class="empty" id="empty" hidden>Nenhum produto com esse nome. Tente outra palavra.</p>
+</main>
+<footer class="wrap">
+  <p><strong>Como funciona:</strong> ao tocar em "Ver na Shopee", você vai para a página do produto na Shopee. O pagamento, a entrega, as trocas e a garantia são feitos pela Shopee e pela loja que vende o produto.</p>
+  <p><strong>Links de afiliado:</strong> se você comprar por um desses links, eu posso receber uma comissão da Shopee, sem custo extra para você.</p>
+  <p>Notas e vendas consultadas na Shopee em 16/11/2026. O preço e as condições atualizadas aparecem na página do produto.</p>
+</footer>
+<script>
+(function(){
+  var map={todos:"todos",tecnologia:"tec",casa:"casa",sono:"sono"};
+  var names={todos:"Mais indicados",tec:"Tecnologia",casa:"Casa e ferramentas",sono:"Sono e conforto"};
+  var tabs=document.querySelectorAll(".tab"), cards=document.querySelectorAll("#grid .card");
+  var q=document.getElementById("q"), feat=document.getElementById("feat"), title=document.getElementById("all-t"), empty=document.getElementById("empty");
+  var canal="direto";
+  try{ var u=new URLSearchParams(location.search); canal=u.get("c")||u.get("utm_source")||sessionStorage.getItem("canal")||"direto"; sessionStorage.setItem("canal",canal);}catch(e){}
+  function track(n,d){ try{ if(window.umami) umami.track(n,d); }catch(e){} }
+  function norm(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");}
+  function render(cat){
+    var term=norm(q.value.trim()), n=0;
+    tabs.forEach(function(t){ if(t.dataset.cat===cat) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current"); });
+    document.body.className = term ? "mode-search" : (cat==="todos" ? "mode-todos" : "");
+    feat.hidden = !!term || cat!=="todos";
+    title.textContent = term ? "Resultado da busca" : names[cat];
+    cards.forEach(function(c){
+      var ok = term ? norm(c.dataset.name).indexOf(term)>-1 : (cat==="todos" || c.dataset.cat===cat);
+      c.hidden=!ok; if(ok && !(document.body.className==="mode-todos" && c.dataset.feat)) n++;
+    });
+    empty.hidden = n>0;
+  }
+  function route(first){
+    var key=(location.hash||"#todos").slice(1);
+    if(map[key]){ q.value=""; render(map[key]); return; }
+    var hit=document.querySelectorAll('.card[data-slug="'+key+'"]');
+    q.value=""; render("todos");
+    if(hit.length){
+      var el=[].filter.call(hit,function(c){return c.offsetParent!==null;})[0]||hit[0];
+      document.querySelectorAll(".card.focus").forEach(function(c){c.classList.remove("focus");});
+      el.classList.add("focus");
+      setTimeout(function(){ el.scrollIntoView({behavior:"smooth",block:"center",inline:"center"}); }, first?250:0);
+      track("produto_aberto",{produto:key,canal:canal});
+    }
+  }
+  window.addEventListener("hashchange",function(){route(false);});
+  q.addEventListener("input",function(){ render(map[(location.hash||"#todos").slice(1)]||"todos"); });
+  var tq; q.addEventListener("input",function(){ clearTimeout(tq); var v=q.value.trim(); if(v.length>2) tq=setTimeout(function(){track("busca",{termo:v.toLowerCase(),canal:canal});},1200); });
+  document.addEventListener("click",function(e){
+    var a=e.target.closest(".card-link"); if(!a) return;
+    var c=a.closest(".card"); track("clique_shopee",{produto:c.dataset.slug,canal:canal,secao:c.closest("#feat")?"videos":"lista"});
+  });
+  route(true);
+})();
+</script>
+</body>
+</html>
