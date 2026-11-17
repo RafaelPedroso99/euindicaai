@@ -519,7 +519,9 @@ footer strong{color:var(--ink)}
       rows.slice(1).forEach(function(r){
         var at=col(r,"ativo").toLowerCase(); if(at && at!=="sim" && at!=="s" && at!=="true") return;
         var link=col(r,"link_afiliado"), nome=col(r,"nome"); if(!link||!nome) return;
-        var cat=CATS[col(r,"categoria").toLowerCase()]; if(!cat) return;
+        var cn=col(r,"categoria").replace(/\s+/g," "); if(!cn) return;
+        var cat=CATS[cn.toLowerCase()];
+        if(!cat){ cat=slugify(cn); if(!cat||cat==="todos") return; CATS[cn.toLowerCase()]=cat; if(!CATN[cat]) CATN[cat]=cn; }
         ps.push({slug:col(r,"codigo")||slugify(nome),nome:nome,cat:cat,link:link,img:col(r,"imagem"),nota:nota(col(r,"nota")),aval:col(r,"avaliacoes"),vend:col(r,"vendidos"),vid:/^s/i.test(col(r,"do_video")),obs:col(r,"observacao")});
       });
       if(!ps.length) throw 0;
@@ -529,8 +531,12 @@ footer strong{color:var(--ink)}
       var f=ps.filter(function(p){return p.vid;});
       document.querySelector(".feat-grid").innerHTML=f.map(function(p){return card(p,top[p.slug]);}).join("");
       document.getElementById("feat").style.display=f.length?"":"none";
-      var n={todos:ps.length,tec:0,casa:0,sono:0,games:0}; ps.forEach(function(p){n[p.cat]++;});
-      document.querySelectorAll(".tab").forEach(function(t){var s=t.querySelector("span"); if(s) s.textContent=n[t.dataset.cat]; t.hidden=!n[t.dataset.cat];});
+      var n={todos:ps.length}; ps.forEach(function(p){n[p.cat]=(n[p.cat]||0)+1;});
+      var box=document.querySelector(".tab").parentNode;
+      Object.keys(n).forEach(function(k){ if(k==="todos"||box.querySelector('.tab[data-cat="'+k+'"]')) return;
+        var a=document.createElement("a"); a.className="tab"; a.href="#"+k; a.dataset.cat=k; a.innerHTML=esc(CATN[k])+"<span></span>"; box.appendChild(a); });
+      window.__cats=CATN;
+      document.querySelectorAll(".tab").forEach(function(t){var s=t.querySelector("span"); if(s) s.textContent=n[t.dataset.cat]||0; t.hidden=!n[t.dataset.cat];});
       done(true);
     }).catch(function(){clearTimeout(to);done(false);});
   };
@@ -541,7 +547,7 @@ footer strong{color:var(--ink)}
   var map={todos:"todos",tecnologia:"tec",casa:"casa",sono:"sono",games:"games"};
   var names={todos:"Mais indicados",tec:"Tecnologia",casa:"Casa e ferramentas",sono:"Sono e conforto",games:"Games"};
   var tabs=document.querySelectorAll(".tab"), cards=document.querySelectorAll("#grid .card");
-  function refresh(){cards=document.querySelectorAll("#grid .card");}
+  function refresh(){cards=document.querySelectorAll("#grid .card"); tabs=document.querySelectorAll(".tab"); var c=window.__cats||{}; Object.keys(c).forEach(function(k){ if(!names[k]){ names[k]=c[k]; map[k]=k; } });}
   var q=document.getElementById("q"), feat=document.getElementById("feat"), title=document.getElementById("all-t"), empty=document.getElementById("empty");
   var canal="direto";
   try{ var u=new URLSearchParams(location.search); canal=u.get("c")||u.get("utm_source")||sessionStorage.getItem("canal")||"direto"; sessionStorage.setItem("canal",canal);}catch(e){}
