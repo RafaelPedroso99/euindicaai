@@ -93,6 +93,7 @@ footer strong{color:var(--ink)}
 @media (prefers-reduced-motion:no-preference){.card.focus .card-link{animation:pulse 1.4s ease-out 2}}
 @keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--brand) 45%,transparent)}100%{box-shadow:0 0 0 14px transparent}}
 .card{scroll-margin-top:84px}
+.tab[hidden]{display:none}
 </style>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Indica Aí: o que eu indico nos vídeos">
@@ -132,6 +133,7 @@ footer strong{color:var(--ink)}
     <a class="tab" href="#tecnologia" data-cat="tec">Tecnologia<span>7</span></a>
     <a class="tab" href="#casa" data-cat="casa">Casa e ferramentas<span>10</span></a>
     <a class="tab" href="#sono" data-cat="sono">Sono e conforto<span>3</span></a>
+    <a class="tab" href="#games" data-cat="games" hidden>Games<span>0</span></a>
   </div>
 </nav>
 <main class="wrap">
@@ -478,8 +480,8 @@ footer strong{color:var(--ink)}
 <script>
 (function(){
   var SHEET="https://docs.google.com/spreadsheets/d/1AutRw833AVrrOcLzZJjAVkIIb6Os8mQ2Qa8loDdkhz8/gviz/tq?tqx=out:csv";
-  var CATS={"tecnologia":"tec","casa e ferramentas":"casa","sono e conforto":"sono"};
-  var CATN={tec:"Tecnologia",casa:"Casa e ferramentas",sono:"Sono e conforto"};
+  var CATS={"tecnologia":"tec","casa e ferramentas":"casa","sono e conforto":"sono","games":"games","game":"games","jogos":"games"};
+  var CATN={tec:"Tecnologia",casa:"Casa e ferramentas",sono:"Sono e conforto",games:"Games"};
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
   function parseCSV(txt){
     var rows=[],row=[],f="",q=false,i,c;
@@ -527,8 +529,8 @@ footer strong{color:var(--ink)}
       var f=ps.filter(function(p){return p.vid;});
       document.querySelector(".feat-grid").innerHTML=f.map(function(p){return card(p,top[p.slug]);}).join("");
       document.getElementById("feat").style.display=f.length?"":"none";
-      var n={todos:ps.length,tec:0,casa:0,sono:0}; ps.forEach(function(p){n[p.cat]++;});
-      document.querySelectorAll(".tab").forEach(function(t){var s=t.querySelector("span"); if(s) s.textContent=n[t.dataset.cat];});
+      var n={todos:ps.length,tec:0,casa:0,sono:0,games:0}; ps.forEach(function(p){n[p.cat]++;});
+      document.querySelectorAll(".tab").forEach(function(t){var s=t.querySelector("span"); if(s) s.textContent=n[t.dataset.cat]; t.hidden=!n[t.dataset.cat];});
       done(true);
     }).catch(function(){clearTimeout(to);done(false);});
   };
@@ -536,8 +538,8 @@ footer strong{color:var(--ink)}
 </script>
 <script>
 (function(){
-  var map={todos:"todos",tecnologia:"tec",casa:"casa",sono:"sono"};
-  var names={todos:"Mais indicados",tec:"Tecnologia",casa:"Casa e ferramentas",sono:"Sono e conforto"};
+  var map={todos:"todos",tecnologia:"tec",casa:"casa",sono:"sono",games:"games"};
+  var names={todos:"Mais indicados",tec:"Tecnologia",casa:"Casa e ferramentas",sono:"Sono e conforto",games:"Games"};
   var tabs=document.querySelectorAll(".tab"), cards=document.querySelectorAll("#grid .card");
   function refresh(){cards=document.querySelectorAll("#grid .card");}
   var q=document.getElementById("q"), feat=document.getElementById("feat"), title=document.getElementById("all-t"), empty=document.getElementById("empty");
